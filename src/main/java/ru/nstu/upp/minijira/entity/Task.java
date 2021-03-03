@@ -1,8 +1,11 @@
 package ru.nstu.upp.minijira.entity;
 
+import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.UUID;
 
 @Entity
 @Table(name = "task", indexes = {
@@ -11,8 +14,13 @@ import java.util.Date;
 public class Task implements Serializable {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.IDENTITY)
-    private long id;
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(
+            name = "UUID",
+            strategy = "org.hibernate.id.UUIDGenerator"
+    )
+    @Column(name = "id", updatable = false, nullable = false)
+    private UUID id;
 
     @Column(name = "title", nullable = false, length = 100)
     private String title;
@@ -44,14 +52,11 @@ public class Task implements Serializable {
     @Column(name = "close_date")
     private Date closeDate;
 
-    public Task() {
-    }
-
-    public long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

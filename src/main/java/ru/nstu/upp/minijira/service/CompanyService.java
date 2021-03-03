@@ -6,19 +6,36 @@ import ru.nstu.upp.minijira.dto.CompanyDto;
 import ru.nstu.upp.minijira.entity.Company;
 import ru.nstu.upp.minijira.repository.CompanyRepository;
 
+import java.util.UUID;
+
 @Service
 public class CompanyService {
 
-    private CompanyRepository companyRepository;
-    private MapperFacade mapperFacade;
+    private final CompanyRepository companyRepository;
+    private final MapperFacade mapperFacade;
 
     public CompanyService(CompanyRepository companyRepository, MapperFacade mapperFacade) {
         this.companyRepository = companyRepository;
         this.mapperFacade = mapperFacade;
     }
 
-    public CompanyDto getById(long id) {
+    public CompanyDto create(CompanyDto companyDto) {
+        Company company = map(companyDto);
+        company.setInviteCode("mock");
+        Company save = companyRepository.save(company);
+        return map(save);
+    }
+
+    public CompanyDto getById(UUID id) {
         Company company = companyRepository.getById(id);
-        return mapperFacade.map(company, CompanyDto.class);
+        return map(company);
+    }
+
+    private Company map(CompanyDto dto) {
+        return mapperFacade.map(dto, Company.class);
+    }
+
+    private CompanyDto map(Company entity) {
+        return mapperFacade.map(entity, CompanyDto.class);
     }
 }

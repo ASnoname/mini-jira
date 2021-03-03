@@ -1,19 +1,17 @@
 package ru.nstu.upp.minijira.dto;
 
+import java.util.UUID;
+
 public class CompanyDto {
 
-    private long id;
+    private UUID id;
     private String name;
-    private String inviteCode;
 
-    public CompanyDto() {
-    }
-
-    public long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -23,13 +21,5 @@ public class CompanyDto {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getInviteCode() {
-        return inviteCode;
-    }
-
-    public void setInviteCode(String inviteCode) {
-        this.inviteCode = inviteCode;
     }
 }
