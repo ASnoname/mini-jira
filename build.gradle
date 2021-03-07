@@ -15,11 +15,13 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation group: 'org.springframework.security', name: 'spring-security-crypto', version: '5.4.5'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-security', version: '2.4.3'
     runtimeOnly 'org.postgresql:postgresql'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     implementation group: 'org.hibernate.validator', name: 'hibernate-validator', version: '6.1.7.Final'
     implementation group: 'ma.glasnost.orika', name: 'orika-core', version: '1.5.4'
+    implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+    implementation group: 'org.springdoc', name: 'springdoc-openapi-ui', version: '1.5.5'
 }
 
 test {

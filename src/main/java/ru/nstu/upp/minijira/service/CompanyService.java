@@ -21,7 +21,7 @@ public class CompanyService {
 
     public CompanyDto create(CompanyDto companyDto) {
         Company company = map(companyDto);
-        company.setInviteCode("mock");
+        company.setInviteCode(UUID.randomUUID().toString());
         Company save = companyRepository.save(company);
         return map(save);
     }

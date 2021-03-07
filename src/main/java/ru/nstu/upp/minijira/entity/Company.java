@@ -24,7 +24,7 @@ public class Company implements Serializable {
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
-    @Column(name = "inviteCode", nullable = false, length = 8)
+    @Column(name = "inviteCode", nullable = false, unique = true)
     private String inviteCode;
 
     @OneToMany(mappedBy = "company", fetch = FetchType.EAGER)

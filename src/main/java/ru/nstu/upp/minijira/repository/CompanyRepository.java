@@ -9,4 +9,5 @@ import java.util.UUID;
 @Repository
 public interface CompanyRepository extends CrudRepository<Company, UUID> {
     Company getById(UUID id);
+    Company getByInviteCode(String inviteCode);
 }

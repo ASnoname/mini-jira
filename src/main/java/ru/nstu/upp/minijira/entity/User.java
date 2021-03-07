@@ -44,7 +44,7 @@ public class User implements Serializable {
     @Column(name = "telegram_chat_id")
     private String telegramChatId;
 
-    @Column(name = "login", nullable = false, length = 30, unique = true)
+    @Column(name = "login", nullable = false, unique = true)
     private String login;
 
     @Column(name = "password_hash", nullable = false)
