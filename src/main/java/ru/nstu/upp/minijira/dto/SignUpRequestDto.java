@@ -1,5 +1,6 @@
 package ru.nstu.upp.minijira.dto;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 
 public class SignUpRequestDto {
@@ -7,9 +8,9 @@ public class SignUpRequestDto {
     private String password;
     private String name;
     private String lastName;
+    @Valid
     @Pattern(regexp = "\\+7[0-9]{10}", message = "+70000000000")
     private String phone;
-    private Boolean isAdmin = Boolean.FALSE;
 
     public String getLogin() {
         return login;
@@ -51,11 +52,4 @@ public class SignUpRequestDto {
         this.phone = phone;
     }
 
-    public Boolean getIsAdmin() {
-        return isAdmin;
-    }
-
-    public void setIsAdmin(Boolean admin) {
-        isAdmin = admin;
-    }
 }

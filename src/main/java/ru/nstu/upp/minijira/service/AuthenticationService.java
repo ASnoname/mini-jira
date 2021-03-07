@@ -13,6 +13,8 @@ import ru.nstu.upp.minijira.dto.SignUpResponseDto;
 import ru.nstu.upp.minijira.entity.Company;
 import ru.nstu.upp.minijira.entity.User;
 import ru.nstu.upp.minijira.entity.UserState;
+import ru.nstu.upp.minijira.exception.CompanyNotFoundException;
+import ru.nstu.upp.minijira.exception.UserExistException;
 import ru.nstu.upp.minijira.repository.CompanyRepository;
 import ru.nstu.upp.minijira.repository.UserRepository;
 import ru.nstu.upp.minijira.security.jwt.JwtTokenProvider;
@@ -42,41 +44,42 @@ public class AuthenticationService {
     public SignInResponseDto signIn(SignInRequestDto requestDto) {
         try {
             String login = requestDto.getLogin();
+            User user = userRepository.findByLogin(login);
+            if (user == null || !UserState.ACTIVE.equals(user.getState())) {
+                throw new UsernameNotFoundException("Пользователь с логином " + login + " не найден");
+            }
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(login, requestDto.getPassword()));
 
-            User user = userRepository.findByLogin(login);
-            if (user == null || !UserState.ACTIVE.equals(user.getState())) {
-                throw new UsernameNotFoundException("User with login: " + login + " not found");
-            }
             String token = jwtTokenProvider.createToken(login, user.getAdmin());
             return new SignInResponseDto(login, token);
         } catch (AuthenticationException e) {
-            throw new BadCredentialsException("Invalid login or password");
+            throw new BadCredentialsException("Логин/пароль неверные");
         }
     }
 
     public SignUpResponseDto signUp(SignUpRequestDto requestDto, String inviteCode) {
+        Company company = companyRepository.getByInviteCode(inviteCode);
+        if(company == null) {
+            throw new CompanyNotFoundException();
+        }
         String login = requestDto.getLogin();
         boolean isExist = userRepository.existsByLogin(login);
         if (isExist) {
-            throw new RuntimeException("User with login: " + login + " exist");
+            throw new UserExistException(login);
         }
+
         User user = new User();
         user.setLogin(requestDto.getLogin());
         user.setPasswordHash(passwordEncoder.encode(requestDto.getPassword()));
         user.setName(requestDto.getName());
         user.setLastname(requestDto.getLastName());
         user.setPhone(requestDto.getPhone());
-        user.setAdmin(requestDto.getIsAdmin());
-        Company company = companyRepository.getByInviteCode(inviteCode);
+        user.setAdmin(false);
+        user.setState(UserState.WAITING);
         user.setCompany(company);
-        if (requestDto.getIsAdmin()) {
-            user.setState(UserState.ACTIVE);
-        } else {
-            user.setState(UserState.ARCHIVE);
-        }
         userRepository.save(user);
+
         return new SignUpResponseDto(login);
     }
 }
