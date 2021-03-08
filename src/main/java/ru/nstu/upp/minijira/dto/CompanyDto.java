@@ -1,8 +1,5 @@
 package ru.nstu.upp.minijira.dto;
 
-import ru.nstu.upp.minijira.entity.User;
-
-import java.util.List;
 import java.util.UUID;
 
 public class CompanyDto {
