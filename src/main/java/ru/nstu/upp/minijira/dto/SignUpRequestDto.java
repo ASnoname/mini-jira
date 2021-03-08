@@ -1,6 +1,5 @@
 package ru.nstu.upp.minijira.dto;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 
 public class SignUpRequestDto {

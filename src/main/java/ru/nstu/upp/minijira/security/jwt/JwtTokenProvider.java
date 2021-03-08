@@ -11,10 +11,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Component
 public class JwtTokenProvider {
@@ -36,9 +33,10 @@ public class JwtTokenProvider {
         secret = Base64.getEncoder().encodeToString(secret.getBytes());
     }
 
-    public String createToken(String login, boolean isAdmin) {
+    public String createToken(String login, boolean isAdmin, UUID companyId) {
         Claims claims = Jwts.claims().setSubject(login);
         claims.put("roles", getRoleNames(isAdmin));
+        claims.put("company", companyId);
 
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMilliseconds);
@@ -58,6 +56,10 @@ public class JwtTokenProvider {
 
     public String getUsername(String token) {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
+    }
+
+    public UUID getCompanyId(String token) {
+        return (UUID) Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().get("company");
     }
 
     public String resolveToken(HttpServletRequest req) {

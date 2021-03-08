@@ -31,7 +31,7 @@ public class AuthenticationController {
     @PostMapping(SIGN_UP)
     public ResponseEntity<SignUpResponseDto> signUp(
             @RequestBody @Valid SignUpRequestDto requestDto,
-            @PathVariable(name = "inviteCode", required = false) String inviteCode
+            @PathVariable(name = "inviteCode") String inviteCode
     ) {
         return ResponseEntity.ok(authenticationService.signUp(requestDto, inviteCode));
     }
