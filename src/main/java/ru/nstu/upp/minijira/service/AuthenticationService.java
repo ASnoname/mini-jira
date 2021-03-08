@@ -1,5 +1,7 @@
 package ru.nstu.upp.minijira.service;
 
+import ma.glasnost.orika.MapperFacade;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -18,7 +20,6 @@ import ru.nstu.upp.minijira.exception.UserExistException;
 import ru.nstu.upp.minijira.repository.CompanyRepository;
 import ru.nstu.upp.minijira.repository.UserRepository;
 import ru.nstu.upp.minijira.security.jwt.JwtTokenProvider;
-import org.springframework.security.authentication.AuthenticationManager;
 
 @Service
 public class AuthenticationService {
@@ -28,17 +29,19 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final MapperFacade mapperFacade;
 
     public AuthenticationService(AuthenticationManager authenticationManager,
                                  JwtTokenProvider jwtTokenProvider,
                                  UserRepository userRepository,
                                  CompanyRepository companyRepository,
-                                 BCryptPasswordEncoder passwordEncoder) {
+                                 BCryptPasswordEncoder passwordEncoder, MapperFacade mapperFacade) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userRepository = userRepository;
         this.companyRepository = companyRepository;
         this.passwordEncoder = passwordEncoder;
+        this.mapperFacade = mapperFacade;
     }
 
     public SignInResponseDto signIn(SignInRequestDto requestDto) {
@@ -51,8 +54,8 @@ public class AuthenticationService {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(login, requestDto.getPassword()));
 
-            String token = jwtTokenProvider.createToken(login, user.getAdmin());
-            return new SignInResponseDto(login, token);
+            String token = jwtTokenProvider.createToken(login, user.getAdmin(), user.getCompany().getId());
+            return new SignInResponseDto(login, token, user.getAdmin(), user.getCompanyDto());
         } catch (AuthenticationException e) {
             throw new BadCredentialsException("Логин/пароль неверные");
         }
@@ -69,17 +72,24 @@ public class AuthenticationService {
             throw new UserExistException(login);
         }
 
-        User user = new User();
-        user.setLogin(requestDto.getLogin());
+        User user = map(requestDto);
         user.setPasswordHash(passwordEncoder.encode(requestDto.getPassword()));
-        user.setName(requestDto.getName());
-        user.setLastname(requestDto.getLastName());
-        user.setPhone(requestDto.getPhone());
-        user.setAdmin(false);
-        user.setState(UserState.WAITING);
+
+        if(company.getUsers().isEmpty()) {
+            user.setAdmin(true);
+            user.setState(UserState.ACTIVE);
+        } else {
+            user.setAdmin(false);
+            user.setState(UserState.WAITING);
+        }
+
         user.setCompany(company);
         userRepository.save(user);
 
         return new SignUpResponseDto(login);
+    }
+
+    private User map(SignUpRequestDto requestDto) {
+        return mapperFacade.map(requestDto, User.class);
     }
 }

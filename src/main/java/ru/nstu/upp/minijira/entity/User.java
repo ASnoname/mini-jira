@@ -1,6 +1,7 @@
 package ru.nstu.upp.minijira.entity;
 
 import org.hibernate.annotations.GenericGenerator;
+import ru.nstu.upp.minijira.dto.CompanyDto;
 
 import javax.persistence.*;
 import javax.validation.constraints.Pattern;
@@ -41,7 +42,7 @@ public class User implements Serializable {
     @Column(name = "is_admin", nullable = false)
     private Boolean isAdmin = Boolean.FALSE;
 
-    @Column(name = "telegram_chat_id", unique = true)
+    @Column(name = "telegram_chat_id")
     private String telegramChatId;
 
     @Column(name = "login", nullable = false, unique = true)
@@ -70,12 +71,20 @@ public class User implements Serializable {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setLastName(String lastname) {
+        this.lastName = lastname;
     }
 
     public Company getCompany() {
         return company;
+    }
+
+    public CompanyDto getCompanyDto() {
+        CompanyDto companyDto = new CompanyDto();
+        companyDto.setId(company.getId());
+        companyDto.setName(company.getName());
+        companyDto.setInviteCode(company.getInviteCode());
+        return companyDto;
     }
 
     public void setCompany(Company company) {
