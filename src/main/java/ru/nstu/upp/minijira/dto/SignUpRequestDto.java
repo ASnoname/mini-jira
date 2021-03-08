@@ -8,7 +8,6 @@ public class SignUpRequestDto {
     private String password;
     private String name;
     private String lastName;
-    @Valid
     @Pattern(regexp = "\\+7[0-9]{10}", message = "+70000000000")
     private String phone;
 
