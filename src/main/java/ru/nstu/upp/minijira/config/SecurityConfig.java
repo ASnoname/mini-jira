@@ -20,6 +20,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private static final String COMPANY_CREATE_ENDPOINT = "/company/**";
     private static final String ADMIN_ENDPOINT = "/admin/**";
     private static final String SWAGGER_ENDPOINT = "/swagger-ui/**";
+    private static final String TELEGRAM_ENDPOINT = "/tg/**";
 
     @Autowired
     public SecurityConfig(JwtTokenProvider jwtTokenProvider) {
@@ -48,6 +49,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(ADMIN_ENDPOINT).hasAuthority("ADMIN")
                 .antMatchers(LOGIN_ENDPOINT).permitAll()
                 .antMatchers(SWAGGER_ENDPOINT).permitAll()
+                .antMatchers(TELEGRAM_ENDPOINT).permitAll()
                 .antMatchers(COMPANY_CREATE_ENDPOINT).permitAll()
                 .anyRequest().authenticated()
                 .and()

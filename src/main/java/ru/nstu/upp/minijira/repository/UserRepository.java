@@ -10,4 +10,6 @@ import java.util.UUID;
 public interface UserRepository extends CrudRepository<User, UUID> {
     User findByLogin(String login);
     boolean existsByLogin(String login);
+    User findByTelegramChatId(String chatId);
+    boolean existsByTelegramChatId(String chatId);
 }

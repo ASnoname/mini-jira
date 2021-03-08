@@ -24,7 +24,7 @@ public class User implements Serializable {
     private String name;
 
     @Column(name = "lastname", nullable = false, length = 100)
-    private String lastname;
+    private String lastName;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="company", nullable = false)
@@ -41,7 +41,7 @@ public class User implements Serializable {
     @Column(name = "is_admin", nullable = false)
     private Boolean isAdmin = Boolean.FALSE;
 
-    @Column(name = "telegram_chat_id")
+    @Column(name = "telegram_chat_id", unique = true)
     private String telegramChatId;
 
     @Column(name = "login", nullable = false, unique = true)
@@ -66,12 +66,12 @@ public class User implements Serializable {
         this.name = name;
     }
 
-    public String getLastname() {
-        return lastname;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void setLastname(String lastname) {
-        this.lastname = lastname;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
     public Company getCompany() {
