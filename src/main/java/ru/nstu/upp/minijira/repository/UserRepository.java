@@ -9,9 +9,9 @@ import java.util.UUID;
 
 @Repository
 public interface UserRepository extends PagingAndSortingRepository<User, UUID> {
+    List<User> findAllByCompanyId(UUID companyId);
     User findByLogin(String login);
     boolean existsByLogin(String login);
-
-//    Page<User> findAll(Pageable page/*UUID company*/);
-    List<User> findAllByCompanyId(UUID companyId);
+    User findByTelegramChatId(String chatId);
+    boolean existsByTelegramChatId(String chatId);
 }
