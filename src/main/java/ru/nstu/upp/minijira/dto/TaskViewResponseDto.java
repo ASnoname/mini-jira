@@ -33,6 +33,7 @@ public class TaskViewResponseDto {
         private UUID id;
         private String title;
         private Date createDate;
+        private String state;
 
         public UUID getId() {
             return id;
@@ -56,6 +57,14 @@ public class TaskViewResponseDto {
 
         public void setCreateDate(Date createDate) {
             this.createDate = createDate;
+        }
+
+        public String getState() {
+            return state;
+        }
+
+        public void setState(String state) {
+            this.state = state;
         }
     }
 }

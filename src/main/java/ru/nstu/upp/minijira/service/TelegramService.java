@@ -1,16 +1,16 @@
 package ru.nstu.upp.minijira.service;
 
-import ma.glasnost.orika.MapperFacade;
+import ma.glasnost.orika.MapperFactory;
 import org.springframework.stereotype.Service;
-import ru.nstu.upp.minijira.dto.StateDto;
-import ru.nstu.upp.minijira.dto.TaskDto;
-import ru.nstu.upp.minijira.dto.TaskViewResponseDto;
+import ru.nstu.upp.minijira.dto.*;
 import ru.nstu.upp.minijira.entity.Task;
 import ru.nstu.upp.minijira.entity.TaskState;
 import ru.nstu.upp.minijira.entity.User;
+import ru.nstu.upp.minijira.exception.UserNotFoundException;
 import ru.nstu.upp.minijira.repository.TaskRepository;
 import ru.nstu.upp.minijira.repository.UserRepository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -21,14 +21,14 @@ public class TelegramService {
 
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
-    private final MapperFacade mapperFacade;
+    private final MapperFactory mapperFactory;
 
     public TelegramService(TaskRepository taskRepository,
                            UserRepository userRepository,
-                           MapperFacade mapperFacade) {
+                           MapperFactory mapperFactory) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
-        this.mapperFacade = mapperFacade;
+        this.mapperFactory = mapperFactory;
     }
 
     public TaskViewResponseDto view(String chatId) {
@@ -36,7 +36,10 @@ public class TelegramService {
         if (user == null) {
             return null;
         }
-        List<Task> tasks = taskRepository.findAllByReporterOrExecutor(user, user);
+        List<Task> tasks = taskRepository.findAllByReporterOrExecutor(user, user)
+                .stream()
+                .filter(task -> !List.of(TaskState.CLOSED, TaskState.DELETED).contains(task.getState()))
+                .collect(Collectors.toList());
         return new TaskViewResponseDto(
                 createTaskInfo(tasks, task -> task.getReporter().equals(user)),
                 createTaskInfo(tasks, task -> task.getExecutor().equals(user))
@@ -68,6 +71,29 @@ public class TelegramService {
         }
     }
 
+    public AvailableExecutorsResponseDto getAvailableExecutors(String chatId) {
+        User user = userRepository.findByTelegramChatId(chatId);
+        if (user == null) {
+            throw new UserNotFoundException();
+        }
+        List<AvailableExecutorsResponseDto.Executor> executors = mapToExecutors(user.getCompany().getUsers());
+        return new AvailableExecutorsResponseDto(executors);
+    }
+
+    public TaskDto createTask(String chatId, CreateTaskRequestDto request) {
+        User reporter = userRepository.findByTelegramChatId(chatId);
+        User executor = userRepository.findByLogin(request.getExecutorLogin());
+        if (reporter == null || executor == null) {
+            throw new UserNotFoundException();
+        }
+        Task task = map(request);
+        task.setCreateDate(new Date());
+        task.setExecutor(executor);
+        task.setReporter(reporter);
+        task.setState(TaskState.CREATED);
+        return mapToTaskDto(taskRepository.save(task));
+    }
+
     private boolean hasAuthority(String chatId, Task task, TaskState newState) {
         boolean isReporter = task.getReporter().getTelegramChatId().equals(chatId);
         boolean isExecutor = task.getExecutor().getTelegramChatId().equals(chatId);
@@ -87,10 +113,22 @@ public class TelegramService {
     }
 
     private TaskViewResponseDto.TaskInfo mapToTaskInfo(Task entity) {
-        return mapperFacade.map(entity, TaskViewResponseDto.TaskInfo.class);
+        return mapperFactory.getMapperFacade().map(entity, TaskViewResponseDto.TaskInfo.class);
     }
 
     private TaskDto mapToTaskDto(Task entity) {
-        return mapperFacade.map(entity, TaskDto.class);
+        return mapperFactory.getMapperFacade().map(entity, TaskDto.class);
+    }
+
+    private List<AvailableExecutorsResponseDto.Executor> mapToExecutors(List<User> users) {
+        mapperFactory.classMap(User.class, AvailableExecutorsResponseDto.Executor.class)
+                .field("login", "executorLogin")
+                .byDefault().register();
+
+        return mapperFactory.getMapperFacade().mapAsList(users, AvailableExecutorsResponseDto.Executor.class);
+    }
+
+    private Task map(CreateTaskRequestDto request) {
+        return mapperFactory.getMapperFacade().map(request, Task.class);
     }
 }

@@ -1,5 +1,6 @@
 package ru.nstu.upp.minijira.entity;
 
+import java.beans.PropertyEditorSupport;
 import java.util.List;
 
 public enum UserState {
@@ -18,4 +19,5 @@ public enum UserState {
     public boolean hasAuthority(UserState newState) {
         return nextStates.contains(newState);
     }
+
 }

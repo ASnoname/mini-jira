@@ -1,6 +1,6 @@
 package ru.nstu.upp.minijira.service;
 
-import ma.glasnost.orika.MapperFacade;
+import ma.glasnost.orika.MapperFactory;
 import org.springframework.stereotype.Service;
 import ru.nstu.upp.minijira.dto.CompanyDto;
 import ru.nstu.upp.minijira.entity.Company;
@@ -12,11 +12,11 @@ import java.util.UUID;
 public class CompanyService {
 
     private final CompanyRepository companyRepository;
-    private final MapperFacade mapperFacade;
+    private final MapperFactory mapperFactory;
 
-    public CompanyService(CompanyRepository companyRepository, MapperFacade mapperFacade) {
+    public CompanyService(CompanyRepository companyRepository, MapperFactory mapperFactory) {
         this.companyRepository = companyRepository;
-        this.mapperFacade = mapperFacade;
+        this.mapperFactory = mapperFactory;
     }
 
     public CompanyDto create(CompanyDto companyDto) {
@@ -32,10 +32,10 @@ public class CompanyService {
     }
 
     private Company map(CompanyDto dto) {
-        return mapperFacade.map(dto, Company.class);
+        return mapperFactory.getMapperFacade().map(dto, Company.class);
     }
 
     private CompanyDto map(Company entity) {
-        return mapperFacade.map(entity, CompanyDto.class);
+        return mapperFactory.getMapperFacade().map(entity, CompanyDto.class);
     }
 }
