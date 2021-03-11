@@ -26,7 +26,7 @@ public class User implements Serializable {
     @Column(name = "lastname", nullable = false, length = 100)
     private String lastName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="company", nullable = false)
     private Company company;
 
@@ -98,11 +98,11 @@ public class User implements Serializable {
         this.state = state;
     }
 
-    public Boolean getAdmin() {
+    public Boolean getIsAdmin() {
         return isAdmin;
     }
 
-    public void setAdmin(Boolean admin) {
+    public void setIsAdmin(Boolean admin) {
         isAdmin = admin;
     }
 

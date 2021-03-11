@@ -17,12 +17,12 @@ public class AdminController {
 
     private static final String BASE_COMPANY = "/company";
     private static final String BY_ID = BASE_COMPANY + "/{id}";
-    private static final String USER_LIST = "/users";
-    private static final String USER_ACTIVATE = USER_LIST + "/{user_id}/activate";
-    private static final String USER_ARCHIVE = USER_LIST + "/{user_id}/archive";
-    private static final String USER_REMOVE = USER_LIST + "/{user_id}/remove";
-    private static final String USER_SET_ADMIN = USER_LIST + "/{user_id}/set-admin";
-    private static final String USER_REMOVE_ADMIN = USER_LIST + "/{user_id}/remove-admin";
+    private static final String USER_LIST = "/users/{company_id}";
+    private static final String USER_ACTIVATE = BASE_COMPANY + "/{user_id}/activate";
+    private static final String USER_ARCHIVE = BASE_COMPANY + "/{user_id}/archive";
+    private static final String USER_REMOVE = BASE_COMPANY + "/{user_id}/remove";
+    private static final String USER_SET_ADMIN = BASE_COMPANY + "/{user_id}/set-admin";
+    private static final String USER_REMOVE_ADMIN = BASE_COMPANY + "/{user_id}/remove-admin";
 
     private final CompanyService companyService;
     private final UserService userService;
@@ -38,8 +38,10 @@ public class AdminController {
     }
 
     @GetMapping(USER_LIST)
-    public ResponseEntity<List<UserDto>> getCompanyUsers(@PathVariable("company_id") UUID companyId) {
-        return ResponseEntity.ok(userService.getCompanyUsers(companyId));
+    public ResponseEntity<List<UserDto>> getCompanyUsers(
+            @PathVariable("company_id") UUID companyId,
+            @RequestParam(value = "state", required = false) UserState userState) {
+        return ResponseEntity.ok(userService.getCompanyUsers(companyId, userState));
     }
 
     @PostMapping(USER_ACTIVATE)
@@ -67,4 +69,5 @@ public class AdminController {
         userService.remove(userId);
         return ResponseEntity.ok().build();
     }
+
 }

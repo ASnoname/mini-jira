@@ -27,7 +27,7 @@ public class Company implements Serializable {
     @Column(name = "inviteCode", nullable = false, unique = true)
     private String inviteCode;
 
-    @OneToMany(mappedBy = "company", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
     private List<User> users = new ArrayList<>();
 
     public UUID getId() {

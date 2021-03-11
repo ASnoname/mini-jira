@@ -1,6 +1,6 @@
 package ru.nstu.upp.minijira.service;
 
-import ma.glasnost.orika.MapperFacade;
+import ma.glasnost.orika.MapperFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,20 +26,20 @@ public class AuthenticationService {
     private final UserRepository userRepository;
     private final CompanyRepository companyRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final MapperFacade mapperFacade;
+    private final MapperFactory mapperFactory;
 
     public AuthenticationService(AuthenticationManager authenticationManager,
                                  JwtTokenProvider jwtTokenProvider,
                                  UserRepository userRepository,
                                  CompanyRepository companyRepository,
                                  BCryptPasswordEncoder passwordEncoder,
-                                 MapperFacade mapperFacade) {
+                                 MapperFactory mapperFactory) {
         this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
         this.userRepository = userRepository;
         this.companyRepository = companyRepository;
         this.passwordEncoder = passwordEncoder;
-        this.mapperFacade = mapperFacade;
+        this.mapperFactory = mapperFactory;
     }
 
     public SignInResponseDto signIn(SignInRequestDto requestDto) {
@@ -52,8 +52,8 @@ public class AuthenticationService {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(login, requestDto.getPassword()));
 
-            String token = jwtTokenProvider.createToken(login, user.getAdmin());
-            return new SignInResponseDto(login, token, user.getAdmin());
+            String token = jwtTokenProvider.createToken(login, user.getIsAdmin());
+            return new SignInResponseDto(login, token, user.getIsAdmin());
         } catch (AuthenticationException e) {
             throw new BadCredentialsException("Логин/пароль неверные");
         }
@@ -74,10 +74,10 @@ public class AuthenticationService {
         user.setPasswordHash(passwordEncoder.encode(requestDto.getPassword()));
 
         if (company.getUsers().isEmpty()) {
-            user.setAdmin(true);
+            user.setIsAdmin(true);
             user.setState(UserState.ACTIVE);
         } else {
-            user.setAdmin(false);
+            user.setIsAdmin(false);
             user.setState(UserState.WAITING);
         }
 
@@ -88,6 +88,6 @@ public class AuthenticationService {
     }
 
     private User map(SignUpRequestDto requestDto) {
-        return mapperFacade.map(requestDto, User.class);
+        return mapperFactory.getMapperFacade().map(requestDto, User.class);
     }
 }

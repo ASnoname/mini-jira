@@ -1,6 +1,6 @@
 package ru.nstu.upp.minijira;
 
-import ma.glasnost.orika.MapperFacade;
+import ma.glasnost.orika.MapperFactory;
 import ma.glasnost.orika.impl.DefaultMapperFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,7 +13,7 @@ public class MiniJiraApplication {
     }
 
     @Bean
-    public MapperFacade mapperFacade() {
-        return new DefaultMapperFactory.Builder().mapNulls(false).build().getMapperFacade();
+    public MapperFactory mapperFactory() {
+        return new DefaultMapperFactory.Builder().mapNulls(false).build();
     }
 }

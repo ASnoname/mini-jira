@@ -1,6 +1,6 @@
 package ru.nstu.upp.minijira.service;
 
-import ma.glasnost.orika.MapperFacade;
+import ma.glasnost.orika.MapperFactory;
 import org.springframework.stereotype.Service;
 import ru.nstu.upp.minijira.dto.UserDto;
 import ru.nstu.upp.minijira.entity.User;
@@ -18,18 +18,21 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final MapperFacade mapperFacade;
+    private final MapperFactory mapperFactory;
 
-    public UserService(UserRepository userRepository, MapperFacade mapperFacade) {
+    public UserService(UserRepository userRepository, MapperFactory mapperFactory) {
         this.userRepository = userRepository;
-        this.mapperFacade = mapperFacade;
+        this.mapperFactory = mapperFactory;
     }
 
-    public List<UserDto> getCompanyUsers(UUID companyId) {
-         return userRepository.findAllByCompanyId(companyId)
-                 .stream()
-                 .map(this::map)
-                 .collect(Collectors.toList());
+    public List<UserDto> getCompanyUsers(UUID companyId, UserState userState) {
+        return userState != null ? userRepository.findAllByCompanyIdAndState(companyId, userState)
+                .stream()
+                .map(this::map)
+                .collect(Collectors.toList()) : userRepository.findAllByCompanyId(companyId)
+                .stream()
+                .map(this::map)
+                .collect(Collectors.toList());
     }
 
     public UserDto setUserState(UUID userId, UserState state) {
@@ -47,7 +50,7 @@ public class UserService {
     }
 
     private UserDto map(User user) {
-        return mapperFacade.map(user, UserDto.class);
+        return mapperFactory.getMapperFacade().map(user, UserDto.class);
     }
 
     public UserDto setAdmin(UUID userId) {
@@ -55,7 +58,7 @@ public class UserService {
         if (user.isPresent()) {
             User entity = user.get();
             if(entity.getState().equals(UserState.ACTIVE)) {
-                entity.setAdmin(true);
+                entity.setIsAdmin(true);
                 return map(userRepository.save(entity));
             }
         }
@@ -66,7 +69,7 @@ public class UserService {
         Optional<User> user = userRepository.findById(userId);
         if (user.isPresent()) {
             User entity = user.get();
-            entity.setAdmin(false);
+            entity.setIsAdmin(false);
             return map(userRepository.save(entity));
         }
         throw new UserNotFoundException();
