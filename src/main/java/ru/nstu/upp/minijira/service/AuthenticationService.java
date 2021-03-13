@@ -53,7 +53,7 @@ public class AuthenticationService {
                     new UsernamePasswordAuthenticationToken(login, requestDto.getPassword()));
 
             String token = jwtTokenProvider.createToken(login, user.getIsAdmin());
-            return new SignInResponseDto(login, token, user.getIsAdmin());
+            return new SignInResponseDto(login, token, user.getIsAdmin(), map(user.getCompany()));
         } catch (AuthenticationException e) {
             throw new BadCredentialsException("Логин/пароль неверные");
         }
@@ -89,5 +89,10 @@ public class AuthenticationService {
 
     private User map(SignUpRequestDto requestDto) {
         return mapperFactory.getMapperFacade().map(requestDto, User.class);
+    }
+
+
+    private CompanyDto map(Company company) {
+        return mapperFactory.getMapperFacade().map(company,CompanyDto.class);
     }
 }
