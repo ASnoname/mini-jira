@@ -49,10 +49,6 @@ public class UserService {
         throw new UserNotFoundException();
     }
 
-    private UserDto map(User user) {
-        return mapperFactory.getMapperFacade().map(user, UserDto.class);
-    }
-
     public UserDto setAdmin(UUID userId) {
         Optional<User> user = userRepository.findById(userId);
         if (user.isPresent()) {
@@ -82,5 +78,18 @@ public class UserService {
             userRepository.delete(entity);
         }
         throw new UserNotFoundException();
+    }
+
+    public UserDto getById(UUID id) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isPresent()) {
+            return map(user.get());
+        } else {
+            throw new UserNotFoundException();
+        }
+    }
+
+    private UserDto map(User entity) {
+        return mapperFactory.getMapperFacade().map(entity, UserDto.class);
     }
 }

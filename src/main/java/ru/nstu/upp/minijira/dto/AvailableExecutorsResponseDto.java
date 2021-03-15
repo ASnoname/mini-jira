@@ -1,6 +1,7 @@
 package ru.nstu.upp.minijira.dto;
 
 import java.util.List;
+import java.util.UUID;
 
 public class AvailableExecutorsResponseDto {
     private List<Executor> executors;
@@ -19,11 +20,13 @@ public class AvailableExecutorsResponseDto {
 
     public static class Executor {
         String executorLogin;
+        UUID id;
         String name;
         String lastName;
 
-        public Executor(String executorLogin, String name, String lastName) {
+        public Executor(String executorLogin, UUID id, String name, String lastName) {
             this.executorLogin = executorLogin;
+            this.id = id;
             this.name = name;
             this.lastName = lastName;
         }
@@ -50,6 +53,14 @@ public class AvailableExecutorsResponseDto {
 
         public void setLastName(String lastName) {
             this.lastName = lastName;
+        }
+
+        public UUID getId() {
+            return id;
+        }
+
+        public void setId(UUID id) {
+            this.id = id;
         }
     }
 }

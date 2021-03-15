@@ -6,6 +6,7 @@ import ru.nstu.upp.minijira.dto.*;
 import ru.nstu.upp.minijira.entity.Task;
 import ru.nstu.upp.minijira.entity.TaskState;
 import ru.nstu.upp.minijira.entity.User;
+import ru.nstu.upp.minijira.entity.UserState;
 import ru.nstu.upp.minijira.exception.UserNotFoundException;
 import ru.nstu.upp.minijira.repository.TaskRepository;
 import ru.nstu.upp.minijira.repository.UserRepository;
@@ -76,7 +77,10 @@ public class TelegramService {
         if (user == null) {
             throw new UserNotFoundException();
         }
-        List<AvailableExecutorsResponseDto.Executor> executors = mapToExecutors(user.getCompany().getUsers());
+        List<User> activeUsers = user.getCompany().getUsers().stream()
+                .filter(u -> UserState.ACTIVE == u.getState())
+                .collect(Collectors.toList());
+        List<AvailableExecutorsResponseDto.Executor> executors = mapToExecutors(activeUsers);
         return new AvailableExecutorsResponseDto(executors);
     }
 
