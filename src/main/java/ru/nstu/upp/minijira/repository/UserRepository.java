@@ -6,11 +6,11 @@ import ru.nstu.upp.minijira.entity.User;
 import ru.nstu.upp.minijira.entity.UserState;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface UserRepository extends CrudRepository<User, UUID> {
+    User getById(UUID userId);
     User findByLogin(String login);
     boolean existsByLogin(String login);
     List<User> findAllByCompanyId(UUID companyId);
